@@ -1,0 +1,5 @@
+/vendor/
+web/core
+
+**/sites/*/files
+**/sites/*/private
