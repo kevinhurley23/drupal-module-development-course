@@ -70,8 +70,42 @@ class RSVPForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // $form_state is the status of the values entered into the form at the time of submission
-    $submitted_email = $form_state->getValue('email');
-    $this->messenger()->addMessage(t("The form is working! You entered @entry.",
-      ['@entry' => $submitted_email]));
+    // $submitted_email = $form_state->getValue('email');
+    // $this->messenger()->addMessage(t("The form is working! You entered @entry.",
+    //   ['@entry' => $submitted_email]));
+
+    try {
+      // Initiate variables to save
+      $uid = \Drupal::currentUser()->id();
+      $nid = $form_state->getValue('nid');
+      $email = $form_state->getValue('email');
+      $current_time = \Drupal::time()->getCurrentTime();
+
+      // Insert values into the DB with a dynamic query
+      $query = \Drupal::database()->insert('rsvplist');
+      $query->fields([
+        'uid',
+        'nid',
+        'mail',
+        'created',
+      ]);
+      $query->values([
+        $uid,
+        $nid,
+        $email,
+        $current_time,
+      ]);
+      $query->execute();
+
+      // Display a message to the user
+      \Drupal::messenger()->addMessage(
+        t("Thanks for your RSVP! You will receive updates at @email.", ['@email' => $email])
+      );
+    } catch (\Exception $e) {
+      \Drupal::messenger()->addMessage(
+        t("There was a problem with your RSVP. Please try again later.")
+      );
+      \Drupal::logger('rsvplist')->error($e->getMessage());
+    }
   }
 }
