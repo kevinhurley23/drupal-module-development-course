@@ -1,6 +1,13 @@
 rsvplist.admin_settings_link:
   title: RSVP List Settings
   description: Control display of RSVP Form
-  route_name: rsvplist.admin_settings
+  route_name: rsvplist.admin_settings # the machine name of the route created in rsvplist.routing.yml
   parent: system.admin_config_content #/admin/config/content, defined in web/core/modules/system/system.routing.yml
   weight: 10
+
+rsvplist.report_link:
+  title: List of RSVP submissions
+  description: View listing of RSVPs
+  route_name: rsvplist.report
+  parent: system.admin_reports
+  weight: -5

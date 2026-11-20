@@ -22,7 +22,7 @@ class ReportController extends ControllerBase {
   protected function load() {
     try {
       $database = \Drupal::database();
-      $select_query = $database->select('rsvplist', 'r') // 'r' is an alias for the 'rsvplist' table, which is used below
+      $select_query = $database->select('rsvplist', 'r'); // 'r' is an alias for the 'rsvplist' table, which is used below
 
       // the 'rsvplist' table only contains uid of a user and nid of a node.
       // we want the username and node title, so we need to also get data from
@@ -85,7 +85,7 @@ class ReportController extends ControllerBase {
       '#header' => $headers,
       '#rows' => $table_rows,
       '#empty' => t('No RSVPs found.')
-    ]
+    ];
 
     // Disable caching for this page
     $content['#cache']['max-age'] = 0;

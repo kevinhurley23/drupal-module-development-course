@@ -1,0 +1,4 @@
+services:
+  rsvplist.enabler:
+    class: Drupal\rsvplist\EnablerService
+    arguments: ['@database'] # injecting Drupal Core's database service as a dependency in our Enabler service. The @ indicates another service. The database service is defined in web/core/core.services.yml

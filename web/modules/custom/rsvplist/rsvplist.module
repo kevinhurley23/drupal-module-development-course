@@ -1,0 +1,60 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+// function rsvplist_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+//   \Drupal::messenger()->addMessage(t("this message comes from rsvplist.module"));
+// }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter()
+ * @param mixed $form
+ * @param FormStateInterface $form_state
+ * @param mixed $form_id
+ * @return void
+ */
+function rsvplist_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $node = $form_state->getFormObject()->getEntity();
+  $current_node_type = $node->getType();
+  $rsvp_config = \Drupal::config('rsvplist.settings');
+  $allowed_types = $rsvp_config->get('allowed_types');
+
+  if (in_array($current_node_type, $allowed_types)) {
+    $form['rsvplist'] = [
+      '#type' => 'details',
+      '#title' => t('RSVP Collection'),
+      '#access' => \Drupal::currentUser()->hasPermission('administer rsvplist'),
+      '#group' => 'advanced',
+      '#weight' => 50
+    ];
+  }
+
+  $enabler = \Drupal::service('rsvplist.enabler'); // service class defined in rsvplist.services.yml and src/EnablerService.php
+  $form['rsvplist']['rsvplist_enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Collect RSVP email address for this node.'),
+    '#default_value' => $enabler->isEnabled($node)
+  ];
+
+  // When we trigger a submit action on the form, in addition to other things Drupal will already do,
+  // execute the rsvplist_form_node_form_submit function
+  foreach(array_keys($form['actions']) as $action) {
+    $type = $form['actions'][$action]['#type'] ?? NULL;
+
+    if ($action != 'preview' && $type === 'submit') {
+      $form['actions'][$action]['#submit'][] = 'rsvplist_form_node_form_submit';
+    }
+  }
+}
+
+function rsvplist_form_node_form_submit($form, FormStateInterface $form_state) {
+  $enabler = \Drupal::service('rsvplist.enabler');
+
+  $node = $form_state->getFormObject()->getEntity();
+
+  if ($form_state->getValue('rsvplist_enabled')) {
+    $enabler->setEnabled($node);
+  } else {
+    $enabler->delEnabled($node);
+  }
+}
