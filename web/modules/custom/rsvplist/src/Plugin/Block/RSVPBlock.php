@@ -29,8 +29,12 @@ class RSVPBlock extends BlockBase {
     // If viewing a node, get the fully loaded node object.
     $node = \Drupal::routeMatch()->getParameter('node');
 
-    if (!(is_null($node))) {
-      return AccessResult::allowedIfHasPermission($account, 'view rsvplist');
+    if (!(is_null($node))) { // is the current route a node?
+      $enabler = \Drupal::service('rsvplist.enabler'); // modules/custom/rsvplist/src/EnablerService.php
+
+      if ($enabler->isEnabled($node)) { // is this node RSVP enabled?
+        return AccessResult::allowedIfHasPermission($account, 'view rsvplist'); // does the user have permission to view the block?
+      }
     }
 
     // Fallback if the current route is not a node
